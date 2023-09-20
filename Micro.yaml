@@ -1,0 +1,9 @@
+---
+- name: Receive arguments from job template 2
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Print arguments
+      debug:
+        msg: "param: {{ parameters }}, Customer: {{ parameters.Customer }}"

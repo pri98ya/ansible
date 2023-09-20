@@ -1,0 +1,37 @@
+---
+- name: Certificate Renewal
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install Certbot and Nginx
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - certbot
+        - nginx
+
+    - name: Stop Nginx
+      service:
+        name: nginx
+        state: stopped
+      register: nginx_stopped
+      ignore_errors: true
+      changed_when: nginx_stopped.changed
+
+    - name: Renew SSL certificate using Certbot
+      command: certbot renew --nginx --noninteractive
+      changed_when: false
+
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+      when: nginx_stopped.changed
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+      when: nginx_stopped.changed

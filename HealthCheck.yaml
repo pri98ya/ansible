@@ -1,0 +1,29 @@
+- name: Gather system facts
+  hosts: all
+  gather_facts: yes
+  tasks:
+  - name: Get uptime
+    ansible.builtin.command: uptime
+    register: uptime_result
+
+  - name: Get disk utilization
+    ansible.builtin.command: df -h
+    register: disk_result
+
+  - name: Check server downtime
+    ansible.builtin.ping:
+    ignore_errors: true
+    register: ping_result
+
+  - name: Notify if server is down
+    ansible.builtin.debug:
+      msg: "Server is down"
+    when: ping_result.failed == true
+
+  - name: Output gathered data
+    ansible.builtin.debug:
+      var:
+        - uptime_result
+        - disk_result
+        - ping_result
+
